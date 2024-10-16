@@ -1,11 +1,11 @@
 import { Button, Dialog, DialogContent, DialogTitle, TextField } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export const CreateTask = ({ open, handleToggleModal, updateTasks, task }) => {
 
     const [isSaving, setIsSaving] = useState(false);
-    const [title, setTitle] = useState(task?.title || '');
-    const [description, setDescription] = useState(task?.description || '');
+    const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
 
     const clearValues = () => {
         setTitle("");
@@ -21,7 +21,7 @@ export const CreateTask = ({ open, handleToggleModal, updateTasks, task }) => {
         e.preventDefault();
         setIsSaving(true);
         try {
-            const method = task ? 'PUT' : 'POST';
+            const method = task ? 'PATCH' : 'POST';
             const url = task ? `http://localhost:5000/tasks/${task._id}` : 'http://localhost:5000/tasks';
             const res = await fetch(url, {
                 method: method,
@@ -33,7 +33,7 @@ export const CreateTask = ({ open, handleToggleModal, updateTasks, task }) => {
             if (res.ok) {
                 await res.json();
                 updateTasks();
-                handleToggleModal();
+                handleToggleModal(e);
                 clearValues();
             }
         } catch (error) {
@@ -42,6 +42,13 @@ export const CreateTask = ({ open, handleToggleModal, updateTasks, task }) => {
             setIsSaving(false);
         }
     };
+
+    useEffect(() => {
+        if(task){
+            setTitle(task?.title);
+            setDescription(task?.description);
+        }
+    },[task]);
 
     return (
         <Dialog
@@ -94,7 +101,7 @@ export const CreateTask = ({ open, handleToggleModal, updateTasks, task }) => {
                         <Button color="error" onClick={handleCancel} sx={{
                             marginRight: 1,
                             backgroundColor: 'rgba(244, 67, 54, 0.6)',
-                            color: 'white',
+                            color: 'white !important',
                             '&:hover': {
                                 backgroundColor: 'rgba(244, 67, 54, 0.8)'
                             }
@@ -102,7 +109,7 @@ export const CreateTask = ({ open, handleToggleModal, updateTasks, task }) => {
                             Cancel
                         </Button>
                         <Button type="submit" sx={{
-                            color: 'white',
+                            color: 'white !important',
                             backgroundColor: 'rgba(33, 150, 243, 0.6)',
                             '&:hover': {
                                 backgroundColor: 'rgba(33, 150, 243, 0.8)'

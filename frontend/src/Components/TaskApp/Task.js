@@ -21,6 +21,7 @@ const StyledCard = styled(Card)({
 export const Task = ({ task, updateTasks, handleUpdateTask }) => {
 
     const handleChangeStatus = async (event) => {
+        event.stopPropagation();
         const updatedStatus = event.target.checked;
         try {
             const response = await fetch(`http://localhost:5000/tasks/${task._id}`, {
@@ -40,9 +41,10 @@ export const Task = ({ task, updateTasks, handleUpdateTask }) => {
         }
     };
 
-    const handleDelete = async (id) => {
+    const handleDelete = async (event) => {
+        event.stopPropagation();
         try {
-            const response = await fetch(`http://localhost:5000/tasks/${id}`, {
+            const response = await fetch(`http://localhost:5000/tasks/${task._id}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'
@@ -50,6 +52,7 @@ export const Task = ({ task, updateTasks, handleUpdateTask }) => {
             });
             if (response.ok) {
                 console.log('Task deleted successfully');
+                updateTasks();
             } else {
                 console.error('Failed to delete the task');
             }
@@ -58,9 +61,8 @@ export const Task = ({ task, updateTasks, handleUpdateTask }) => {
         }
     };
 
-
     return (
-        <StyledCard onClick={handleUpdateTask}>
+        <StyledCard>
             <Box display="flex" alignItems="center">
                 <Tooltip title="Mark completed">
                     <FormControlLabel
@@ -80,14 +82,14 @@ export const Task = ({ task, updateTasks, handleUpdateTask }) => {
                         label=""
                     />
                 </Tooltip>
-                <Typography variant="h5" component="h2" textTransform={'capitalize'} style={{ flexGrow: 1 }}>
+                <Typography variant="h5" onClick={() => handleUpdateTask(task)} component="h2" textTransform={'capitalize'} style={{ flexGrow: 1, cursor:'pointer' }}>
                     {task?.title}
                 </Typography>
                 {task?.completed && (
-                    <Button
+                    <Button size='small'
                         variant="contained"
                         color="secondary"
-                        onClick={() => handleDelete(task._id)}
+                        onClick={handleDelete}
                         sx={{
                             marginLeft: 2,
                             color: 'white',
